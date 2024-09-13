@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
     try {
         const currentUser = await User.findById(req.session.user._id);
         res.render('foods/index.ejs', {
-            foods: currentUser.foods,
+            foods: currentUser.pantry,
         });
     } catch (error) {
         console.log(error);
@@ -27,6 +27,8 @@ router.get('/new', async (req, res) => {
     }
 });
 
+
+// create route ‘/users/:userId/foods’
 router.post('/', async (req, res) => {
     try {
         const currentUser = await User.findById(req.session.user._id);
@@ -40,5 +42,64 @@ router.post('/', async (req, res) => {
 });
 
 
+// show route ‘/users/:userId/foods/:itemId’
+router.get('/:foodId', async (req, res) => {
+    try {
+        const currentUser = await User.findById(req.session.user._id);
+        const pantry = currentUser.pantry.id(req.params.foodId);
+        res.render('foods/show.ejs', {
+            food: pantry,
+        });
+    } catch (error) {
+        console.log(error,"<-----------------error");
+        res.redirect('/');
+    }
+});
+
+
+// edit route ‘/users/:userId/foods/:itemId/edit’
+router.get('/:foodId/edit', async (req, res) => {
+    try {
+        const currentUser = await User.findById(req.session.user._id);
+        const pantry = currentUser.pantry.id(req.params.foodId);
+        res.render('foods/edit.ejs', {
+            food: pantry,
+        });
+    } catch (error) {
+        console.log(error,"<-----------------error");
+        res.redirect('/');
+    }
+});
+
+
+// update route ‘/users/:userId/foods/:itemId’
+router.put('/:foodId', async (req, res) => {
+    try {
+        const currentUser = await User.findById(req.session.user._id);
+        const pantry = currentUser.pantry.id(req.params.foodId);
+        pantry.set(req.body);
+        await currentUser.save();
+        res.redirect(`/users/${currentUser._id}/foods`);
+    } catch (error) {
+        console.log(error,"<-----------------error");
+        res.redirect('/');
+    }
+});
+
+
+
+
+//delete route ‘/users/:userId/foods/:itemId’
+router.delete('/:foodId', async (req, res) => {
+    try {
+        const currentUser = await User.findById(req.session.user._id);
+        currentUser.pantry.id(req.params.foodId).deleteOne();
+        await currentUser.save();
+        res.redirect(`/users/${currentUser._id}/foods`);
+    } catch (error) {
+        console.log(error,"<-----------------error");
+        res.redirect('/');
+    }
+});
 
 module.exports = router;
