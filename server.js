@@ -31,15 +31,17 @@ app.use(
   })
 );
 
+app.use(passUserToView);
+
 app.get('/', (req, res) => {
-  res.render('index.ejs', {
-    user: req.session.user,
-  });
-  // if (req.session.user) {
-  //   res.send(`Welcome back ${req.session.user.username}`);
-  // } else {
-  //   res.render('index.ejs');
-  // }
+  // res.render('index.ejs', {
+  //   user: req.session.user,
+  // });
+  if (req.session.user) {
+    res.redirect(`/users/${req.session.user._id}/foods`);
+  } else {
+    res.render('index.ejs');
+  }
 });
 
 app.get('/vip-lounge', (req, res) => {
@@ -50,7 +52,7 @@ app.get('/vip-lounge', (req, res) => {
   }
 });
 
-app.use(passUserToView);
+
 app.use('/auth', authController);
 app.use(isSignedIn);
 app.use('/users/:userId/foods', foodsController);
